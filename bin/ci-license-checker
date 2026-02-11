@@ -90,15 +90,19 @@ function checkLicense(licenseString, packageString) {
 	if (licenseString.length === 0) {
 		return false;
 	}
-	/* use this code if you want to accept guessed packages
+	// Normalize "guessed" licenses: license-checker appends '*' when license was inferred (e.g. MIT* → MIT, BSD* → BSD)
 	if (licenseString[licenseString.length - 1] === '*') {
 		licenseString = licenseString.substring(0, licenseString.length - 1);
-	} */
+	}
+	// Match normalized family prefix (e.g. "BSD" from "BSD*" matches accepted "BSD-2-Clause", "BSD-3-Clause")
+	const acceptedByPrefix = _.some(config.acceptedLicenses, (accepted) =>
+		accepted === licenseString || accepted.startsWith(licenseString + '-'));
 	return (
 		acceptedNonSpdx.indexOf(licenseString) >= 0
 		|| packageString.startsWith(projectPackage.name + '@') // accept your own package
 		|| _.some(config.acceptedScopes, (scope) => packageString.startsWith(`@${scope}/`))
 		|| licenseString.startsWith(specialExemptionPrefix)
+		|| acceptedByPrefix
 		|| (acceptedSpdxExpr && satisfiesNoThrow(licenseString, acceptedSpdxExpr))
 	);
 }

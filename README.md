@@ -13,7 +13,7 @@ The aim of this work is to make the solution more generic and customizable at a 
 
 1. Add this package as a development dependency:
 
-    `npm install --save-dev https://github.com/mathieugerard/ci-license-checker`
+    `npm install --save-dev ci-license-checker`
 
 1. Define a new script in your `package.json` by adding the following lines:
 
@@ -81,6 +81,15 @@ The configuration file is a simple JSON file with the following optional entries
   * `ALLOWED (license-name)`: identifier indicating that although `license-name` is not in the `"acceptedLicenses"` set, its use has been granted a special permission for this project.
 
 * `"ignoreUnusedManualOverrides"`: Set it to true if you do not want warnings logged when you have unused manual overrides (`false` by default)
+
+### License strings with a trailing `*` (e.g. MIT*, BSD*)
+
+Underlying `license-checker` can report licenses with a trailing asterisk (e.g. `MIT*`, `BSD*`) when the license was inferred from files like README or LICENSE rather than from `package.json`. This fork normalizes such values before matching:
+
+- **Exact match after strip**: `MIT*` is treated as `MIT`, so it matches if `MIT` is in `acceptedLicenses`.
+- **Family prefix match**: `BSD*` is treated as `BSD`; it is accepted if any entry in `acceptedLicenses` is exactly `BSD` or starts with `BSD-` (e.g. `BSD-2-Clause`, `BSD-3-Clause`).
+
+So you do **not** need to add `MIT*` or `BSD*` to `acceptedLicenses`; listing `MIT` and the specific BSD variants (e.g. `BSD-2-Clause`, `BSD-3-Clause`) is enough.
 
 ## Contributing
 
